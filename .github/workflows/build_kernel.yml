@@ -61,13 +61,13 @@ jobs:
         to: ${{ secrets.CHAT_ID }}
         token: ${{ secrets.BOT_TOKEN }}
         message: |
-            ${{ github.actor }} triggered a kernelbuild!
+          ${{ github.actor }} triggered a kernel build!
+          
+          Device: ${{ github.event.inputs.TARGET_DEVICE }}
+          Branch: ${{ github.event.inputs.BRANCH }}
+          Workflows: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Repository: ${{ github.repository }}
 
-            Device: ${{ github.event.inputs.TARGET_DEVICE }}
-            Branch: ${{ github.event.inputs.BRANCH }}
-            Workflows: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            Repository: ${{ github.repository }}
-            
     - name: Prepare dependencies
       run: |
         sudo apt update -y
