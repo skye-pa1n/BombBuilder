@@ -54,7 +54,17 @@ jobs:
         token: ${{ secrets.ACCESS_TOKEN }}
         show-progress: false
         fetch-depth: 1
-        
+  
+    - name: Telegram msg
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.CHAT_ID }}
+        token: ${{ secrets.BOT_TOKEN }}
+        message: |
+            ${{ github.actor }} triggered a build!
+            Workflows: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Repository: ${{ github.repository }}
+            
     - name: Prepare dependencies
       run: |
         sudo apt update -y
