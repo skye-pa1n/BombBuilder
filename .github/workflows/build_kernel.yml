@@ -56,7 +56,7 @@ jobs:
         fetch-depth: 1
   
     - name: Telegram msg
-      uses: appleboy/telegram-action@master
+      uses: cbrgm/telegram-github-action@v1
       with:
         to: ${{ secrets.CHAT_ID }}
         token: ${{ secrets.BOT_TOKEN }}
