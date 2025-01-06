@@ -61,7 +61,10 @@ jobs:
         to: ${{ secrets.CHAT_ID }}
         token: ${{ secrets.BOT_TOKEN }}
         message: |
-            ${{ github.actor }} triggered a build!
+            ${{ github.actor }} triggered a kernelbuild!
+
+            Device: ${{ github.event.inputs.TARGET_DEVICE }}
+            Branch: ${{ github.event.inputs.BRANCH }}
             Workflows: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             Repository: ${{ github.repository }}
             
