@@ -25,9 +25,6 @@ on:
       CLANG_EIGHTEEN:
         description: Use clang 18
         type: boolean
-      UPLOAD_TO_TG:
-        description: Upload to Telegram
-        type: boolean
       LLVM:
         description: LLVM=1
         type: boolean
@@ -130,8 +127,8 @@ jobs:
       with:
         name: Build-${{ steps.buildKernel.outputs.buildDetails }}
         path: |
-          kernel_root/out/arch/arm64/boot/*.gz
-          kernel_root/out/arch/arm64/boot/dts/mediatek/*.dtb
+          kernel_root/out/arch/arm64/boot/Image
+          kernel_root/out/arch/arm64/boot/dts/vendor/qcom/*.dtb
 
     - name: Upload AnyKernel3
       uses: actions/upload-artifact@v4
