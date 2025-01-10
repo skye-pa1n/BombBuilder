@@ -4,22 +4,19 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'android-4.19-stable'
+        default: 'endless'
         required: true
       TARGET_DEVICE:
         description: 'Target Device'
         required: true
-        default: 'a03s'
+        default: 'r8q'
         type: choice
         options:
-          - a03s
-          - a04e
-          - m04
-          - a06
+          - r8q
       LTO:
         description: 'Link Time Optimisation'
         required: true
-        default: 'none'
+        default: 'thin'
         type: choice
         options:
           - none
@@ -27,9 +24,6 @@ on:
           - full
       CLANG_EIGHTEEN:
         description: Use clang 18
-        type: boolean
-      KSU:
-        description: Add KernelSU support
         type: boolean
       UPLOAD_TO_TG:
         description: Upload to Telegram
@@ -52,7 +46,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         path: kernel_root
-        repository: rsuntk/android_kernel_samsung_huaqin-cmn
+        repository: skye-pa1n/not_r8q_ui
         ref: ${{ github.event.inputs.BRANCH }}
         token: ${{ secrets.ACCESS_TOKEN }}
         show-progress: false
@@ -96,8 +90,8 @@ jobs:
         export PATH=$(pwd)/toolchains/clang-`echo $CLANG_VERSION`/bin:$PATH
         export CROSS_COMPILE=$(pwd)/toolchains/gcc-10/bin/aarch64-buildroot-linux-gnu-
         export CLANG_TRIPLE=aarch64-linux-gnu-
-        export KBUILD_BUILD_USER="rsuntk"
-        export KBUILD_BUILD_HOST="rsuntkOrgs"
+        export KBUILD_BUILD_USER="skye"
+        export KBUILD_BUILD_HOST="github-workflows"
         export BUILD_START=`date`
         export SELINUX_STATE="Enforcing"
         export IS_CI=true
@@ -109,42 +103,16 @@ jobs:
             export LLVM_IAS=1
           fi
         fi
-
-        # clone mtk connectivity
-        rm -rf drivers/misc/mediatek/connectivity && cd drivers/misc/mediatek/ && git clone https://github.com/rsuntkOrgs/mtk_connectivity_module --depth=1 -b staging-4.19 connectivity && rm -rf connectivity/.git && cd ../../..
-
-        if [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "a03s" ]]; then
-          export DEFCONFIG="rsuntk-a03s_defconfig"
-          export DEVICE="A037F"
-          export DEVICE_ID="A03s"
-          export TARGET_PRODUCT=a03s
-        elif [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "a04e" ]]; then
-          export DEFCONFIG="rsuntk-a04e_defconfig"
-          export DEVICE="A042F"
-          export DEVICE_ID="A04e"
-          export TARGET_PRODUCT=a04
-        elif [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "m04" ]]; then
-          export DEFCONFIG="rsuntk-m04_defconfig"
-          export DEVICE="M045F"
-          export DEVICE_ID="M04"
-          export TARGET_PRODUCT=a04
-        elif [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "a06" ]]; then
-          export DEFCONFIG="rsuntk-a06_defconfig"
-          export DEVICE="A065F"
-          export DEVICE_ID="A06"
+        if [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "r8q" ]]; then
+          export DEFCONFIG="not_defconfig"
+          export DEVICE="G780G"
+          export DEVICE_ID="S20 FE"
+          export TARGET_PRODUCT=r8q
         fi
         
-        export KERNELSU="${{ github.event.inputs.KSU }}"
+        bash $(pwd)/bomb.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
-        
-        if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
-        	KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD)
-        	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
-        else
-        	KSU_VERSION="No KernelSU"
-        fi
-        echo "- KernelSU version: $KSU_VERSION"
+        echo "- KernelSU version: 1.0.3 NeXT"
         
         ## CREATE buildDetails.txt
         printf "Localversion: `./getutsrel`
@@ -188,43 +156,4 @@ jobs:
         name: AnyKernel3-${{ steps.buildKernel.outputs.buildDetails }}
         path: kernel_root/AnyKernel3/*
         compression-level: 9
-        
-    - name: Upload to Telegram
-      if: github.event.inputs.UPLOAD_TO_TG == 'true'
-      env:
-        CHAT_ID: ${{ secrets.CHAT_ID }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: |
-        if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-          ZIP=$(find `pwd` -name "*.zip")
-          git clone https://github.com/rsuntk/rsuntkBotScript.git --depth=1 i && cp ./i/* . && rm -rf i
-          bash $(pwd)/rsuntkbot.sh $ZIP "`cat buildDetails.txt`"
-        fi
-      working-directory: kernel_root
-        
-    - name: Strip LKMs
-      run: |
-        # Cleanup zip
-        rm -rf *.zip
-
-        # Create folder
-        mkdir ../kernel_object_tmp
-        mkdir kernel_object
-
-        # Only move neccessary path!
-        find $(pwd) -type f -name "*.ko" -exec mv {} ../kernel_object_tmp \;
-        LIST=$(find ../kernel_object_tmp -type f -name "*.ko")
-
-        # Start stripping
-        for file in $LIST; do
-          echo -e "- Stripping `basename $file`"
-          $(pwd)/toolchains/clang-`echo $CLANG_VERSION`/bin/llvm-strip "$file" --strip-unneeded
-        done
-        mv ../kernel_object_tmp/*.ko $(pwd)/kernel_object/
-      working-directory: kernel_root
-        
-    - name: Upload LKM
-      uses: actions/upload-artifact@v4
-      with:
-        name: LKM-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/kernel_object/*
+                
