@@ -47,26 +47,9 @@ jobs:
       with:
         path: kernel_root
         repository: skye-pa1n/not_r8q_ui
-        ref: ${{ github.event.inputs.BRANCH }}
-        token: ${{ secrets.ACCESS_TOKEN }}
         show-progress: false
         fetch-depth: 1
   
-    - name: Telegram msg
-      uses: cbrgm/telegram-github-action@v1
-      with:
-        to: ${{ secrets.CHAT_ID }}
-        token: ${{ secrets.BOT_TOKEN }}
-        disable-web-page-preview: true
-        message: |
-          @${{ github.actor }} triggered a kernel build!
-
-          Start: ${{ steps.rundate.outputs.REPO_DATE }}
-          Device: ${{ github.event.inputs.TARGET_DEVICE }}
-          Branch: ${{ github.event.inputs.BRANCH }}
-          Workflows: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          Repository: ${{ github.server_url }}/${{ github.repository }}
-
     - name: Prepare dependencies
       run: |
         sudo apt update -y
