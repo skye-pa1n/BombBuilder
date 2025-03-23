@@ -4,7 +4,7 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'endless'
+        default: 'master'
         required: true
       TARGET_DEVICE:
         description: 'Target Device'
@@ -43,8 +43,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         path: kernel_root
-        repository: skye-pa1n/not_r8q_ui
-        show-progress: false
+        repository: skye-pa1n/not_r8q
+        show-progress: true
         fetch-depth: 1
   
     - name: Prepare dependencies
