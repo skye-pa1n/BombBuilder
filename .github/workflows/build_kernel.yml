@@ -4,7 +4,7 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'master'
+        default: 'interstellar'
         required: true
       TARGET_DEVICE:
         description: 'Target Device'
@@ -90,9 +90,9 @@ jobs:
           export TARGET_PRODUCT=r8q
         fi
         
-        bash $(pwd)/bomb.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
+        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
-        echo "- KernelSU version: 1.0.3 NeXT"
+        echo "- The Bomb has been planted."
         
         ## CREATE buildDetails.txt
         printf "Localversion: `./getutsrel`
